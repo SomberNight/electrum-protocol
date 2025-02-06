@@ -511,6 +511,190 @@ Unsubscribe from a script hash, preventing future notifications if its :ref:`sta
   Note that :const:`False` might be returned even for something subscribed to earlier,
   because the server can drop subscriptions in rare circumstances.
 
+blockchain.outpoint.subscribe
+=============================
+
+Subscribe to a transaction outpoint (TXO), to get notifications about its status.
+A status involves up to two transactions: the funding transaction that creates
+the TXO (as one of its outputs), and the spending transaction that uses it
+as an input (spends it).
+
+**Signature**
+
+  .. function:: blockchain.outpoint.subscribe(tx_hash, txout_idx, spk_hint=None)
+  .. versionadded:: 1.7
+
+  *tx_hash*
+
+    The TXID of the funding transaction as a hexadecimal string.
+    (sometimes called prevout_hash, in inputs)
+
+  *txout_idx*
+
+    The output index, a non-negative integer. (sometimes called prevout_n, in inputs)
+
+  *spk_hint*
+
+    The scriptPubKey (output script) corresponding to the outpoint, as a hexadecimal
+    string. This is optional, and if provided might be used by the server to find
+    the outpoint. The behaviour is undefined if an incorrect value is provided.
+    The server (especially lighter ones such as EPS/BWT) might require this parameter
+    to be able to serve the request, in which case the server must indicate so in its
+    :func:`server.features` response, by including an `requires_spk_hint_for_outpoint` key
+    with value `1`.
+
+.. note::  The server MAY automatically clean up subscriptions (unsubscribe the client)
+  where the spending transaction is already deeply mined at a reorg-safe height (typically
+  100+ blocks deep).
+  Similarly, the server MAY ignore new subscription requests if the spending tx is already
+  mined at a reorg-safe height but it still MUST send at least one full response.
+
+**Result**
+
+  The status of the TXO, taking the mempool into consideration.
+  The output is a dictionary, containing 0, 1, or 3 of the following items:
+
+  * *height*
+
+    The integer height of the block the funding transaction was confirmed in.
+    If the funding transaction is in the mempool; the value is
+    ``0`` if all its inputs are confirmed, and ``-1`` otherwise.
+    This key must be present if and only if there exists a funding transaction
+    (either in the best chain or in the mempool), regardless of spentness.
+
+  * *spender_txhash*
+
+    The TXID of the spending transaction as a hexadecimal string.
+    This key is present if and only if there exists a spending transaction
+    (either in the best chain or in the mempool).
+
+  * *spender_height*
+
+    The integer height of the block the spending transaction was confirmed in.
+    If the spending transaction is in the mempool; the value is
+    ``0`` if all its inputs are confirmed, and ``-1`` otherwise.
+    This key is present if and only if the *spender_txhash* key is present.
+
+**Result Examples**
+
+::
+
+  {}
+
+::
+
+  {
+    "height": 1866594
+  }
+
+::
+
+  {
+    "height": 1866594,
+    "spender_txhash": "4a19a360f71814c566977114c49ccfeb8a7e4719eda26cee27fa504f3f02ca09",
+    "spender_height": 0
+  }
+
+**Notifications**
+
+  The client will receive a notification when the `status` of the outpoint changes.
+  That is, any event that changes any field of the `status` dictionary results in a
+  notification. Some examples:
+
+  * a funding/spending tx appearing in the mempool if there was no such tx when the client subbed
+    (note: the server MUST save the subscription even if the outpoint does not exist yet)
+  * funding/spending tx height changing from -1 to 0 as its inputs got mined
+  * funding/spending tx height changing from 0 to a (positive) block height when it gets mined
+  * note that reorgs can change any of the `status` fields and result in notifications
+  * note that mempool replacement (e.g. due to RBF) or mempool eviction (and potentially other
+    mempool quirks) can also change some of the `status` fields and hence result in notifications
+
+  The client MAY receive a notification even if the status did not change
+  (when e.g. there was a reorg changing the blockhash the tx is mined in but not the height).
+
+  The signature of the notification is
+
+    .. function:: blockchain.outpoint.subscribe([tx_hash, txout_idx], status)
+       :noindex:
+
+**Full JSON-RPC Example**
+
+Here is an example where the client sends a request, gets an immediate response,
+and then at some point later - while the connection is still open -
+receives a notification.
+
+::
+
+  -> {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "blockchain.outpoint.subscribe",
+    "params": ["1872b27abc497492a775fe335abfe368af575733144a7ecd4b249d8fd885b3cf", 1]
+  }
+  <- {
+    "jsonrpc": "2.0",
+    "result": {"height": 1866594},
+    "id": 4
+  }
+
+  # notification after broadcasting tx 4a19a360f71814c566977114c49ccfeb8a7e4719eda26cee27fa504f3f02ca09
+  <- {
+    "jsonrpc": "2.0",
+    "method": "blockchain.outpoint.subscribe",
+    "params": [
+      ["1872b27abc497492a775fe335abfe368af575733144a7ecd4b249d8fd885b3cf", 1],
+      {
+        "height": 1866594,
+        "spender_txhash": "4a19a360f71814c566977114c49ccfeb8a7e4719eda26cee27fa504f3f02ca09",
+        "spender_height": 0
+      }
+    ]
+  }
+
+
+blockchain.outpoint.get_status
+==============================
+
+Get the status of a transaction outpoint (TXO).
+Same as :func:`blockchain.outpoint.subscribe`, but without subscribing to future changes of status
+(i.e. no subsequent notifications).
+
+**Signature**
+
+  .. function:: blockchain.outpoint.get_status(tx_hash, txout_idx, spk_hint=None)
+  .. versionadded:: 1.7
+
+  (same as :func:`blockchain.outpoint.subscribe`)
+
+**Result**
+
+  (same as :func:`blockchain.outpoint.subscribe`)
+
+blockchain.outpoint.unsubscribe
+===============================
+
+Unsubscribe from a transaction outpoint (TXO), preventing future notifications
+if its `status` changes.
+
+**Signature**
+
+  .. function:: blockchain.outpoint.unsubscribe(tx_hash, txout_idx)
+  .. versionadded:: 1.7
+
+  *tx_hash*
+
+    The TXID of the funding transaction as a hexadecimal string.
+
+  *txout_idx*
+
+    The output index, a non-negative integer.
+
+**Result**
+
+  Returns :const:`True` if the outpoint was subscribed to, otherwise :const:`False`.
+  Note that :const:`False` might be returned even for something subscribed to earlier,
+  because the server can drop subscriptions in rare circumstances.
+
 blockchain.transaction.broadcast
 ================================
 
@@ -748,7 +932,9 @@ and height.
 
 **Signature**
 
-  .. function:: blockchain.transaction.get_merkle(tx_hash, height)
+  .. function:: blockchain.transaction.get_merkle(tx_hash, height=None)
+  .. versionchanged:: 1.7
+     *height* argument made optional (previously mandatory)
 
   *tx_hash*
 
@@ -756,7 +942,8 @@ and height.
 
   *height*
 
-    The height at which it was confirmed, an integer.
+    Optionally, the height at which it was confirmed, an integer.
+    Clients are encouraged to provide this field when they can, to reduce server load.
 
 **Result**
 
