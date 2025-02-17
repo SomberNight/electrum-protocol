@@ -1118,18 +1118,117 @@ subscription and the server must send no notifications.
 server.ping
 ===========
 
-Ping the server to ensure it is responding, and to keep the session
+Ping the remote to ensure it is responding, and to keep the session
 alive.  The server may disconnect clients that have sent no requests
 for roughly 10 minutes.
 
+Besides keeping the TCP connection alive, this can also be used
+to obfuscate traffic patterns.
+
+This method can be sent either as a JSON-RPC "Request" or as a JSON-RPC "Notification".
+If sent as a notification, the receiver is expected not to respond.
+This is useful to mimic the traffic pattern of a "useful" notification.
+
+Unlike with other methods, these notifications are not sent as a consequence of prior
+subscriptions. We simply abuse the JSON-RPC "Notification" mechanism to allow
+sending an "unrequested" message that does not warrant a response.
+
+  **Note** This method is special, in that it is symmetric: both the client and
+  the server are allowed to send it (both as a request and as a notification),
+  and both MUST support receiving it and responding to it.
+
 **Signature**
 
-  .. function:: server.ping()
+  .. function:: server.ping(pong_len=0, data="")
   .. versionadded:: 1.2
+  .. versionchanged:: 1.6
+     both parties are now allowed to send this
+     and significant changes to signature/fields
+
+  * *pong_len*
+
+    The number of hex characters the other party should send in the *data* part of the response.
+    A non-negative integer.
+
+  * *data*
+
+    A hexadecimal string. Its value is to be ignored by the recipient.
 
 **Result**
 
-  Returns :const:`null`.
+  A dictionary with the following keys:
+
+  * *data*
+
+    A hexadecimal string. Its value is to be ignored by the recipient.
+    However, the length MUST match the *pong_len* that was requested.
+
+**Notifications**
+
+    .. function:: server.ping(data="")
+       :noindex:
+
+    * *data*
+
+      See **Result** above.
+
+**Note** The *data* fields should support reasonably long strings, at least as long as
+would be needed to encode the largest consensus-valid transaction. No limits here
+would mean an easy DOS-vector and waste of bandwidth using *pong_len*. The client could
+already send or request transactions using other protocol methods, so limiting below that
+does not make sense.
+
+**Full JSON-RPC Examples**
+
+::
+
+  -> {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "server.ping",
+    "params": [0, "deadbeefdeadbeefdeadbeefdeadbeef"]
+  }
+  <- {
+    "jsonrpc": "2.0",
+    "result": {"data": ""},
+    "id": 4
+  }
+
+::
+
+  -> {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "server.ping",
+    "params": [5]
+  }
+  <- {
+    "jsonrpc": "2.0",
+    "result": {"data": "00000"},
+    "id": 4
+  }
+  <- {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "method": "server.ping",
+    "params": [14, "0000000000000000000000000000000000000000000000000000000000000000"]
+  }
+  -> {
+    "jsonrpc": "2.0",
+    "result": {"data": "deadbeefdeadbe"},
+    "id": 7
+  }
+
+::
+
+  -> {
+    "jsonrpc": "2.0",
+    "method": "server.ping",
+    "params": ["deadbeefdeadbeefdeadbeefdeadbeef"]
+  }
+  (No response. This was a notification.)
+
+
 
 server.version
 ==============

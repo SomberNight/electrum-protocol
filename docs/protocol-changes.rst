@@ -216,3 +216,13 @@ Removed methods
 
   * :func:`blockchain.relayfee` is removed. The `minrelaytxfee` field
     of the new :func:`mempool.get_info` RPC is a direct replacement.
+
+
+Version 1.6.1
+=============
+
+Changes
+-------
+
+  * :func:`server.ping` can now be sent by both the client and the server, and both
+    parties must handle and respond to it. The request/response signature also changed.
