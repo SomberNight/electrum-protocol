@@ -223,6 +223,12 @@ Removed methods
 Version 1.7
 ===========
 
+Changes
+-------
+
+  * :func:`server.ping` can now also be sent as an unrequested notification, by both the client
+    and the server. The request/response signature also changed.
+
 New methods
 -----------
 
