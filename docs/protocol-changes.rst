@@ -226,6 +226,8 @@ Version 1.7
 Changes
 -------
 
+  * The `blockchain.scripthash.*` methods are all replaced with `blockchain.scriptpubkey.*`
+    methods. Note: `sha256(scriptPubKey) == scripthash`.
   * For :func:`blockchain.transaction.get_merkle`, the previously required
     *height* argument is now optional, and the result now includes a
     *block_hash* field.
@@ -245,3 +247,19 @@ New methods
     outpoint, and get a notification when it gets spent.
   * :func:`blockchain.outpoint.unsubscribe` to unsubscribe from a TXO.
   * :func:`blockchain.outpoint.get_status` to get current status of a TXO, without subscribing to changes.
+  * :func:`blockchain.scriptpubkey.get_balance`
+  * :func:`blockchain.scriptpubkey.get_history`
+  * :func:`blockchain.scriptpubkey.get_mempool`
+  * :func:`blockchain.scriptpubkey.listunspent`
+  * :func:`blockchain.scriptpubkey.subscribe`
+  * :func:`blockchain.scriptpubkey.unsubscribe`
+
+Removed methods
+---------------
+
+  * :func:`blockchain.scripthash.get_balance`
+  * :func:`blockchain.scripthash.get_history`
+  * :func:`blockchain.scripthash.get_mempool`
+  * :func:`blockchain.scripthash.listunspent`
+  * :func:`blockchain.scripthash.subscribe`
+  * :func:`blockchain.scripthash.unsubscribe`
