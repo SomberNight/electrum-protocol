@@ -226,8 +226,9 @@ Version 1.7
 Changes
 -------
 
-  * The previously required *height* argument for
-    :func:`blockchain.transaction.get_merkle` is now optional.
+  * For :func:`blockchain.transaction.get_merkle`, the previously required
+    *height* argument is now optional, and the result now includes a
+    *block_hash* field.
   * Support for *cp_height* in :func:`blockchain.block.header` and
     :func:`blockchain.block.headers` has been made optional.
   * Support for :const:`verbose=true` in :func:`blockchain.transaction.get`
