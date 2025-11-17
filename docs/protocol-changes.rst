@@ -255,6 +255,7 @@ New methods
   * :func:`blockchain.outpoint.get_status` to get current status of a TXO, without subscribing to changes.
   * :func:`blockchain.transaction.get_merkle_witness` to SPV-prove wtxids.
   * :func:`blockchain.transaction.testmempoolaccept`
+  * :func:`mempool.recent` to list a few of the latest txs just added to the mempool.
 
 Removed methods
 ---------------
