@@ -939,6 +939,55 @@ Returns details on the active state of the TX memory pool.
   }
 
 
+mempool.recent
+==============
+
+Return a list of the last 10 transactions to enter the mempool, in arbitrary order.
+Each transaction object contains simplified overview data,
+with the following fields: txid, fee and vsize.
+
+**Signature**
+
+  .. function:: mempool.recent()
+
+**Result**
+
+  An array of dictionaries, each with the following keys:
+
+    * `txid`
+        * Type: hex string
+        * Value: The transaction hash as a hexadecimal string.
+    * `fee`
+        * Type: integer
+        * Value: The fee paid by the transaction, in satoshis.
+    * `vsize`
+        * Type: integer
+        * Value: The virtual size of the transaction, in vbytes.
+
+.. note:: The server should do a best-effort attempt at including txs that just very recently
+  entered the mempool, however most-recent-ness is not guaranteed.
+
+.. note:: The result might contain fewer than 10 items if the mempool is close to empty.
+
+**Example Result**
+
+::
+
+  [
+      {
+          txid: "4b93c138293a7e3dfea6f0a63d944890b5ba571b03cc22d8c66995535e90dce8",
+          fee: 18277,
+          vsize: 2585
+      },
+      {
+          txid: "47182935123ae4e28d6a227a6076deaef222885d1d67e17e1ea02dd69013e5db",
+          fee: 877,
+          vsize: 143
+      },
+      ...
+  ]
+
+
 server.add_peer
 ===============
 
