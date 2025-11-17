@@ -246,6 +246,7 @@ New methods
   * :func:`blockchain.outpoint.unsubscribe` to unsubscribe from a TXO.
   * :func:`blockchain.outpoint.get_status` to get current status of a TXO, without subscribing to changes.
   * :func:`blockchain.transaction.testmempoolaccept`
+  * :func:`mempool.recent` to list a few of the latest txs just added to the mempool.
 
 Removed methods
 ---------------
