@@ -614,7 +614,7 @@ as an input (spends it).
 
   The signature of the notification is
 
-    .. function:: blockchain.outpoint.subscribe([tx_hash, txout_idx], status)
+    .. function:: blockchain.outpoint.subscribe(tx_hash, txout_idx, status)
        :noindex:
 
 **Full JSON-RPC Example**
@@ -642,7 +642,8 @@ receives a notification.
     "jsonrpc": "2.0",
     "method": "blockchain.outpoint.subscribe",
     "params": [
-      ["1872b27abc497492a775fe335abfe368af575733144a7ecd4b249d8fd885b3cf", 1],
+      "1872b27abc497492a775fe335abfe368af575733144a7ecd4b249d8fd885b3cf",
+      1,
       {
         "height": 1866594,
         "spender_txhash": "4a19a360f71814c566977114c49ccfeb8a7e4719eda26cee27fa504f3f02ca09",
