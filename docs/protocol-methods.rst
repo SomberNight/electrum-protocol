@@ -853,6 +853,125 @@ When *verbose* is :const:`true` (exact structure depends on bitcoind impl and ve
     -> {"jsonrpc":"2.0","result":{"success":false,"errors":[{"txid":"c13d8d63284853d3417a150cfddcfc62d31cab4b311c9322cb43f979a518ac3a","error":"insufficient fee, rejecting replacement c13d8d63284853d3417a150cfddcfc62d31cab4b311c9322cb43f979a518ac3a, not enough additional fees to relay; 0.00000022 < 0.0000011"}]},"id":4}
 
 
+blockchain.transaction.testmempoolaccept
+========================================
+
+Returns result of mempool acceptance tests indicating if transaction(s) would be accepted by mempool.
+This checks if txs violate the consensus or policy rules.
+
+If multiple txs are passed in, parents must come before children and package policies apply:
+the transactions cannot conflict with any mempool txs or each other. However the txs do not
+necessarily need to be related to each other or form a "package".
+
+**Signature**
+
+  .. function:: blockchain.transaction.testmempoolaccept(raw_txs)
+  .. versionadded:: 1.7
+
+  *raw_txs*
+
+    An array of raw transactions, each as a hexadecimal string.
+    The maximum number of transactions allowed depends on the bitcoind version of the server,
+    but SHOULD be at least 25.
+
+**Result**
+
+  A json array containing the mempool acceptance test result (a dictionary) for each raw tx,
+  in the same order they were passed in.
+
+  Transactions that cannot be fully validated due to failures in other transactions will not contain an 'allowed' field.
+
+  The per-tx dict has the following keys:
+
+  * `txid` (always)
+      * Type: str
+      * Value: The transaction hash in hex
+  * `wtxid` (always)
+      * Type: str
+      * Value: The transaction witness hash in hex
+  * `allowed` (optional)
+      * Type: bool
+      * Value: Whether this tx would be accepted to the mempool.
+        If not present, the tx was not fully validated due to a failure in another tx in the list.
+  * `reason` (optional)
+      * Type: str
+      * Value: Rejection reason or error message describing why the tx would not be accepted into the mempool.
+        Only present if "allowed" is either false or missing, but even then its presence is optional.
+        This message is arbitrary free-from human-readable text, no guarantees re stability or contents at all.
+        This is only there to help debugging.
+
+**Result Example**
+
+Single tx, allowed::
+
+    [
+        {
+            'txid': 'f2f5f9e7a189d97367b4449705e0567408b4d2f3b6ee03119fa7bc7a96313bfc',
+            'wtxid': '9091e488dded52875f308f1305b1beec73cf0c646644c58c1a161170a33ce7e6',
+            'allowed': true
+        }
+    ]
+
+Two txs, allowed::
+
+    [
+        {
+            'txid': 'f2f5f9e7a189d97367b4449705e0567408b4d2f3b6ee03119fa7bc7a96313bfc',
+            'wtxid': '9091e488dded52875f308f1305b1beec73cf0c646644c58c1a161170a33ce7e6',
+            'allowed': true
+        },
+        {
+            'txid': '0b3e3cacd0be5156711eeff30c4124168b3be9890c297b1c02d47a66e2a6f61b',
+            'wtxid': '779a2ffd065ad5243b85c5d716815186607cf0195a604a8cd668ef2093986b4a',
+            'allowed': true
+        }
+    ]
+
+
+Single tx, rejected::
+
+    [
+        {
+            'txid': '9c42f84b2fcdaff676ba25d9d4941741cc0d1a01cce0c23fdc4c0b2afa38431c',
+            'wtxid': 'b3b1045327a9bd21850f07f639a784653c69d7d82b0341829cb8afcb2c0f881e',
+            'allowed': false,
+            'reason': 'missing-inputs'
+        }
+    ]
+
+Two txs, first tx would be okay, but second is not::
+
+    [
+        {
+            'txid': '5cd0bd7d93e1bbd8269563c1d081e893ed4efbd4bf74ad369ce8569e78928a3e',
+            'wtxid': 'ca0404678d8301cdbbcb96c619acc92b54b6fb82c6a9c4c1d6a2f9b0004d1559'},
+        {
+            'txid': 'd79a54959ac68c592687ac1c040f4b2ba223cb18f36552a42beaab776d6305ed',
+            'wtxid': '83996a7f65d8a52238b83d6123fe908ff98ab48db762d201dbf9efbbf67bd4cc',
+            'allowed': false,
+            'reason': 'min relay fee not met, 0 < 15'
+        }
+    ]
+
+Two txs, that already conflict with each other. This illustrates the "allowed" field might not be present in any item::
+
+    [
+        {
+            'txid': 'd79a54959ac68c592687ac1c040f4b2ba223cb18f36552a42beaab776d6305ed',
+            'wtxid': '83996a7f65d8a52238b83d6123fe908ff98ab48db762d201dbf9efbbf67bd4cc',
+            'reason': 'conflict-in-package'
+        },
+        {
+            'txid': '30aa0fb6174fcc6593235301aa7887227958952238f306131b4dbcab6af33c2f',
+            'wtxid': '7ff9fcbf25721c19b04468c5c2f218d950e3b6446e7e1a564fc01304d3c3e3f2',
+            'reason': 'conflict-in-package'
+        }
+    ]
+
+.. note:: The client implicitly trusts the server NOT to broadcast the txs.
+  Conversely, for the `blockchain.transaction.broadcast` RPC, the client trusts the server to DO broadcast the tx.
+
+
 blockchain.transaction.get
 ==========================
 

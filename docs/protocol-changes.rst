@@ -245,6 +245,7 @@ New methods
     outpoint, and get a notification when it gets spent.
   * :func:`blockchain.outpoint.unsubscribe` to unsubscribe from a TXO.
   * :func:`blockchain.outpoint.get_status` to get current status of a TXO, without subscribing to changes.
+  * :func:`blockchain.transaction.testmempoolaccept`
 
 Removed methods
 ---------------
