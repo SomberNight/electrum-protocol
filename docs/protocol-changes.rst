@@ -254,6 +254,7 @@ New methods
   * :func:`blockchain.outpoint.unsubscribe` to unsubscribe from a TXO.
   * :func:`blockchain.outpoint.get_status` to get current status of a TXO, without subscribing to changes.
   * :func:`blockchain.transaction.get_merkle_witness` to SPV-prove wtxids.
+  * :func:`blockchain.transaction.testmempoolaccept`
 
 Removed methods
 ---------------
