@@ -329,6 +329,10 @@ Return the confirmed and unconfirmed history of a :ref:`scriptPubKey <scriptpubk
   See :func:`blockchain.scriptpubkey.get_mempool` for how mempool
   transactions are returned.
 
+  If the history of the spk is too long (busy address, touched by thousands of txs),
+  and so the server refuses to serve it, it SHOULD send a JSON-RPC error with integer code `10_001`
+  to communicate this to the client.
+
 **Result Examples**
 
 ::
@@ -506,6 +510,10 @@ Subscribe to a :ref:`scriptPubKey <scriptpubkeys>`.
 
     .. function:: blockchain.scriptpubkey.subscribe(scripthash, status)
        :noindex:
+
+  If the history of the spk is too long (busy address, touched by thousands of txs),
+  and so the server refuses to serve it, it SHOULD send a JSON-RPC error with integer code `10_001`
+  to communicate this to the client.
 
 blockchain.scriptpubkey.unsubscribe
 ===================================

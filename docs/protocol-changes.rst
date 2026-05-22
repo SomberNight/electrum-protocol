@@ -239,6 +239,7 @@ Changes
     which aims to provide some clarity re whether the server supports optional features.
   * :func:`server.ping` can now also be sent as an unrequested notification, by both the client
     and the server. The request/response signature also changed.
+  * Standardize "history too large" error code for `blockchain.scriptpubkey.*` methods.
 
 New methods
 -----------
