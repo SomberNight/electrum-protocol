@@ -216,3 +216,17 @@ Removed methods
 
   * :func:`blockchain.relayfee` is removed. The `minrelaytxfee` field
     of the new :func:`mempool.get_info` RPC is a direct replacement.
+
+
+.. _version 1.7:
+
+Version 1.7
+===========
+
+New methods
+-----------
+
+  * :func:`blockchain.outpoint.subscribe` to subscribe to a transaction
+    outpoint, and get a notification when it gets spent.
+  * :func:`blockchain.outpoint.unsubscribe` to unsubscribe from a TXO.
+  * :func:`blockchain.outpoint.get_status` to get current status of a TXO, without subscribing to changes.
