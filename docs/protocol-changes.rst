@@ -231,6 +231,7 @@ Changes
   * The `blockchain.scripthash.*` methods are all replaced with `blockchain.scriptpubkey.*`
     methods. Note: `sha256(scriptPubKey) == scripthash`.
   * The `hash_function` field is removed from the :func:`server.features` response.
+  * Standardize "history too large" error code for `blockchain.scriptpubkey.*` methods.
 
 New methods
 -----------
