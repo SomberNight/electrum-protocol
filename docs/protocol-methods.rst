@@ -1620,10 +1620,16 @@ This is useful to mimic the traffic pattern of a "useful" notification.
 Unlike with other methods, these notifications are not sent as a consequence of prior
 subscriptions. We simply abuse the JSON-RPC "Notification" mechanism to allow
 sending an "unrequested" message that does not warrant a response.
+Both the client and the server MUST tolerate receiving this as an unrequested notification.
 
-  **Note** This method is special, in that it is symmetric: both the client and
-  the server are allowed to send it (both as a request and as a notification),
-  and both MUST support receiving it and responding to it.
+  **Note** The client can send this method either as "Request" or as "Notification".
+  The server is only allowed to send it as "Notification".
+  There seems to be no useful traffic pattern that could be mimicked by allowing the server to send
+  this as a request (and getting the client to respond). If one arises, we could
+  relax this in a future version.
+  Allowing the client to send it as "Notification" can be useful as an alternative way
+  to pad its outgoing traffic, in case it does not have direct access to the lower-level
+  JSON-RPC stream to inject whitespaces.
 
 **Signature**
 
@@ -1640,7 +1646,7 @@ sending an "unrequested" message that does not warrant a response.
 
   * *data*
 
-    A hexadecimal string. Its value is to be ignored by the recipient.
+    A hexadecimal string (but can be odd-length). Its value is to be ignored by the recipient.
 
 **Result**
 
@@ -1648,7 +1654,7 @@ sending an "unrequested" message that does not warrant a response.
 
   * *data*
 
-    A hexadecimal string. Its value is to be ignored by the recipient.
+    A hexadecimal string (but can be odd-length). Its value is to be ignored by the recipient.
     However, the length MUST match the *pong_len* that was requested.
 
 **Notifications**
@@ -1694,17 +1700,6 @@ does not make sense.
     "jsonrpc": "2.0",
     "result": {"data": "00000"},
     "id": 4
-  }
-  <- {
-    "jsonrpc": "2.0",
-    "id": 7,
-    "method": "server.ping",
-    "params": [14, "0000000000000000000000000000000000000000000000000000000000000000"]
-  }
-  -> {
-    "jsonrpc": "2.0",
-    "result": {"data": "deadbeefdeadbe"},
-    "id": 7
   }
 
 ::

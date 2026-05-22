@@ -370,8 +370,10 @@ the server can enforce the other to pad and much less to delay messages.
   it COULD probabilistically send a random number of "server.ping" messages
   with small random sleeps in-between.
 
-  Protocol version 1.7 extends "server.ping" so that either party can send it, and
-  that it can be sent either as a JSON-RPC "Request" or as a JSON-RPC "Notification".
+  Protocol version 1.7 extends "server.ping" to make it more useful for mimicking other traffic
+  and adding noise. Now the client can send it either as a JSON-RPC "Request"
+  or JSON-RPC "Notification", and the server can send it as a JSON-RPC "Notification".
+  It can be sent as a notification at any time, without any corresponding prior subscription.
   If sent as a notification, the receiver is expected not to respond.
 
   When the server sends a block header notification to the client,
