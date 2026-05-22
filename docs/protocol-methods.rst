@@ -559,6 +559,7 @@ with the child being the last element in the array.
 **Signature**
 
   .. function:: blockchain.transaction.broadcast_package(raw_txs, verbose=false)
+  .. versionadded:: 1.6
 
   *raw_txs*
 
@@ -911,6 +912,7 @@ Returns details on the active state of the TX memory pool.
 **Signature**
 
   .. function:: mempool.get_info()
+  .. versionadded:: 1.6
 
 **Result**
 
