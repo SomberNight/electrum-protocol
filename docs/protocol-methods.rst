@@ -521,7 +521,7 @@ as an input (spends it).
 
 **Signature**
 
-  .. function:: blockchain.outpoint.subscribe(tx_hash, txout_idx, spk_hint=None)
+  .. function:: blockchain.outpoint.subscribe(tx_hash, txout_idx, spk_hint)
   .. versionadded:: 1.7
 
   *tx_hash*
@@ -535,12 +535,16 @@ as an input (spends it).
 
   *spk_hint*
 
-    The scriptPubKey (output script) corresponding to the outpoint, as a hexadecimal
-    string. This is optional, and if provided might be used by the server to find
-    the outpoint. The behaviour is undefined if an incorrect value is provided.
-    Some servers (especially lighter personal servers such as EPS/BWT) might require this parameter
-    to be able to serve the request, due to implementation constraints, but when feasible
-    the server SHOULD NOT require it.
+    The scriptPubKey (output script) corresponding to the outpoint (prevout), as a hexadecimal
+    string. This helps the server find the outpoint. Behaviour is undefined if
+    an incorrect value is provided.
+
+    .. note::  Full index servers might not need the parameter in practice
+      but some lighter personal servers (such as EPS, BWT, Floresta)
+      would not be able to serve the request without it. A future protocol version might
+      add a feature flag where the server can signal whether it requires spk_hint.
+      Clients should always know the spk_hint in practice, so having to send it
+      is not expected to kill any use case.
 
 .. note::  The server MAY automatically clean up subscriptions (unsubscribe the client)
   where the spending transaction is already deeply mined at a reorg-safe height (typically
@@ -628,7 +632,7 @@ receives a notification.
     "jsonrpc": "2.0",
     "id": 4,
     "method": "blockchain.outpoint.subscribe",
-    "params": ["1872b27abc497492a775fe335abfe368af575733144a7ecd4b249d8fd885b3cf", 1]
+    "params": ["1872b27abc497492a775fe335abfe368af575733144a7ecd4b249d8fd885b3cf", 1, "0014da28b119a0687c045d87b604667f6773bdc30146"]
   }
   <- {
     "jsonrpc": "2.0",
@@ -661,7 +665,7 @@ Same as :func:`blockchain.outpoint.subscribe`, but without subscribing to future
 
 **Signature**
 
-  .. function:: blockchain.outpoint.get_status(tx_hash, txout_idx, spk_hint=None)
+  .. function:: blockchain.outpoint.get_status(tx_hash, txout_idx, spk_hint)
   .. versionadded:: 1.7
 
   (same as :func:`blockchain.outpoint.subscribe`)
