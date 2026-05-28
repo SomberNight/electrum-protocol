@@ -33,7 +33,7 @@ extraneous whitespace between elements; client and server MUST NOT use newlines 
 way.
 
 Messages SHOULD be :ref:`padded <padding_messages>` to bucketed lengths,
-and buffered (to introduce delays) to protect against traffic analysis.
+and COULD be buffered (to introduce delays) to protect against traffic analysis.
 
 If using JSON RPC 2.0's feature of parameter passing by name, the
 names shown in the description of the method or notification in
@@ -276,11 +276,11 @@ of the message contents based on TCP packet flow: timing, direction, and sizes o
 .. note:: When using raw cleartext TCP as transport for the JSON-RPC payloads, without encryption,
   a passive network observer can see all the plaintext messages.
 
-As a generic mitigation, implementations (both client and server) SHOULD
+As a generic mitigation, implementations (both client and server)
 
-- pad messages to bucketed lengths (e.g. powers of 2, with a min size), and
+- SHOULD pad messages to bucketed lengths (e.g. powers of 2, with a min size), and
 
-- introduce small timing delays, ideally by buffering messages.
+- COULD introduce small timing delays, ideally by buffering messages.
 
 (A future protocol version will allow the client to opt-in/opt-out of this server-behaviour,
 but this is not done yet. Opt-out would be useful at least for the timing delays, to avoid
@@ -344,7 +344,7 @@ the server can enforce the other to pad and much less to delay messages.
   they only implement the raw cleartext TCP protocol, and just recommend operators
   to put a reverse proxy in front that does TLS termination.
   Such protocol implementations (both client and server) nevertheless still
-  SHOULD implement all mentioned traffic analysis protections.
+  SHOULD implement traffic analysis protections.
   That way, if the operator tunnels the traffic over TLS externally,
   the resulting stream meaningfully receives the protections.
 
